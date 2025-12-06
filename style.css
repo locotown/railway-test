@@ -1,0 +1,459 @@
+:root {
+  --color-red: #FF0000;
+  --color-orange: #FF7F00;
+  --color-yellow: #FFFF00;
+  --color-green: #00FF00;
+  --color-blue: #0000FF;
+  --color-indigo: #4B0082;
+  --color-violet: #8B00FF;
+  --current-color: var(--color-red);
+  --text-color: #FFFFFF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  transition: background 0.8s ease-in-out, color 0.3s ease;
+  background: linear-gradient(135deg, var(--current-color), rgba(0,0,0,0.3));
+  color: var(--text-color);
+  display: grid;
+  grid-template-areas:
+    "header"
+    "main"
+    "stats"
+    "input"
+    "weather"
+    "history";
+  grid-template-rows: auto 1fr auto auto auto auto;
+  gap: 16px;
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+/* ヘッダー */
+.header {
+  grid-area: header;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.header h1 {
+  font-size: 1.8em;
+  margin-bottom: 8px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.countdown {
+  font-size: 2.5em;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.countdown span {
+  font-size: 1.5em;
+}
+
+.date-display {
+  margin-top: 8px;
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
+/* メインエリア */
+.main-area {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 250px;
+}
+
+.progress-circle {
+  width: 180px;
+  height: 180px;
+  border: 8px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.15);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease;
+}
+
+.progress-circle:hover {
+  transform: scale(1.05);
+}
+
+.percentage {
+  font-size: 2.8em;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.progress-text {
+  font-size: 1em;
+  opacity: 0.9;
+}
+
+.color-indicator {
+  margin-top: 16px;
+  padding: 8px 20px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  font-size: 0.9em;
+}
+
+/* 統計パネル */
+.stats-panel {
+  grid-area: stats;
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  overflow-x: auto;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  min-width: 90px;
+}
+
+.stat-item h3 {
+  font-size: 0.75em;
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+
+.stat-item span {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.stat-item .unit {
+  font-size: 0.7em;
+  font-weight: normal;
+}
+
+/* 入力セクション */
+.input-section {
+  grid-area: input;
+  display: flex;
+  justify-content: center;
+}
+
+#distanceForm {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+}
+
+#distanceInput {
+  flex: 1;
+  padding: 14px 18px;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 25px;
+  background: rgba(255,255,255,0.95);
+  color: #333;
+  min-width: 0;
+}
+
+#distanceInput:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.5);
+}
+
+button {
+  padding: 14px 24px;
+  font-size: 1em;
+  border: none;
+  border-radius: 25px;
+  background: rgba(255,255,255,0.95);
+  color: #333;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* 天気パネル */
+.weather-panel {
+  grid-area: weather;
+  padding: 16px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+#weatherIcon {
+  font-size: 1.8em;
+}
+
+#weatherDescription {
+  font-size: 1em;
+}
+
+.running-condition {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+/* 履歴セクション */
+.history-section {
+  grid-area: history;
+  padding: 16px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.history-section h3 {
+  margin-bottom: 12px;
+  font-size: 1em;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  font-size: 0.9em;
+}
+
+.history-item .date {
+  opacity: 0.8;
+}
+
+.history-item .distance {
+  font-weight: bold;
+}
+
+.history-empty {
+  text-align: center;
+  padding: 20px;
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+/* 設定ボタン */
+.settings-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 1.5em;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* モーダル */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: #fff;
+  color: #333;
+  padding: 24px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+  font-size: 1.3em;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-actions button {
+  flex: 1;
+}
+
+.btn-cancel {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+/* レスポンシブ - タブレット */
+@media (min-width: 768px) {
+  body {
+    grid-template-areas:
+      "header header"
+      "main stats"
+      "input weather"
+      "history history";
+    grid-template-columns: 1.5fr 1fr;
+    grid-template-rows: auto 1fr auto auto;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .progress-circle {
+    width: 220px;
+    height: 220px;
+  }
+
+  .percentage {
+    font-size: 3.2em;
+  }
+
+  .stats-panel {
+    flex-direction: column;
+  }
+}
+
+/* レスポンシブ - デスクトップ */
+@media (min-width: 1024px) {
+  body {
+    grid-template-areas:
+      "header header header"
+      "main main stats"
+      "input weather stats"
+      "history history history";
+    grid-template-columns: 1fr 1fr 280px;
+    max-width: 1100px;
+  }
+
+  .header h1 {
+    font-size: 2.2em;
+  }
+
+  .countdown {
+    font-size: 3em;
+  }
+
+  .progress-circle {
+    width: 260px;
+    height: 260px;
+  }
+
+  .percentage {
+    font-size: 3.5em;
+  }
+}
+
+/* アニメーション */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse {
+  animation: pulse 0.3s ease-in-out;
+}
+
+/* スクロールバー */
+.history-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 3px;
+}

@@ -3,52 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Railway Test</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    .container {
-      text-align: center;
-      padding: 2rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 16px;
-      backdrop-filter: blur(10px);
-    }
-    h1 { margin-bottom: 0.5rem; }
-    .status { font-size: 1.2rem; margin: 1rem 0; }
-    .api-result {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: rgba(0,0,0,0.2);
-      border-radius: 8px;
-    }
-  </style>
+  <title>Marathon Color Countdown</title>
+  <meta name="description" content="フルマラソン準備を彩る進捗管理アプリ">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="container">
-    <h1>Railway Test</h1>
-    <p class="status">Deployed Successfully!</p>
-    <div class="api-result" id="apiResult">API Response: Loading...</div>
+<body id="app">
+  <header class="header">
+    <h1 id="raceName">マラソン大会</h1>
+    <div class="countdown">
+      <span id="daysLeft">0</span>日後
+    </div>
+    <div class="date-display" id="currentDate"></div>
+  </header>
+
+  <main class="main-area">
+    <div class="progress-circle">
+      <span class="percentage" id="progressPercent">0%</span>
+      <div class="progress-text">完了</div>
+    </div>
+    <div class="color-indicator">
+      <span id="currentColorName">スタート</span>
+    </div>
+  </main>
+
+  <aside class="stats-panel">
+    <div class="stat-item">
+      <h3>走行距離</h3>
+      <span id="totalDistance">0.0</span><span class="unit">km</span>
+    </div>
+    <div class="stat-item">
+      <h3>残り距離</h3>
+      <span id="remainingDistance">42.2</span><span class="unit">km</span>
+    </div>
+    <div class="stat-item">
+      <h3>目標距離</h3>
+      <span>42.195</span><span class="unit">km</span>
+    </div>
+  </aside>
+
+  <section class="input-section">
+    <form id="distanceForm">
+      <input type="number" id="distanceInput"
+             placeholder="今日の走行距離 (km)"
+             step="0.1" min="0" max="50">
+      <button type="submit">記録</button>
+    </form>
+  </section>
+
+  <div class="weather-panel" id="weatherPanel">
+    <div class="weather-info">
+      <span id="weatherIcon">🌤️</span>
+      <span id="weatherDescription">天気情報を取得中...</span>
+      <div class="running-condition" id="runningCondition"></div>
+    </div>
   </div>
-  <script>
-    fetch('/api/hello')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('apiResult').textContent =
-          `API Response: ${data.message} (${data.timestamp})`;
-      })
-      .catch(err => {
-        document.getElementById('apiResult').textContent =
-          'API Response: Error - ' + err.message;
-      });
-  </script>
+
+  <section class="history-section">
+    <h3>走行履歴</h3>
+    <div class="history-list" id="historyList"></div>
+  </section>
+
+  <!-- 設定モーダル -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <h2>設定</h2>
+      <form id="settingsForm">
+        <div class="form-group">
+          <label for="raceNameInput">大会名</label>
+          <input type="text" id="raceNameInput" placeholder="例: 東京マラソン2025">
+        </div>
+        <div class="form-group">
+          <label for="raceDateInput">大会日</label>
+          <input type="date" id="raceDateInput">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" id="cancelSettings">キャンセル</button>
+          <button type="submit" class="btn-save">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <button class="settings-btn" id="openSettings">⚙️</button>
+
+  <script src="script.js"></script>
 </body>
 </html>

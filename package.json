@@ -1,13 +1,24 @@
 {
-  "name": "railway-test",
+  "name": "marathon-color-countdown",
   "version": "1.0.0",
-  "description": "Railway deployment test project",
+  "description": "フルマラソン準備を彩る進捗管理アプリ - 42.195kmを7色の虹で視覚化",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
   },
+  "keywords": [
+    "marathon",
+    "running",
+    "countdown",
+    "fitness"
+  ],
+  "author": "",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
