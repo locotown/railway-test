@@ -59,9 +59,30 @@
   </div>
 
   <section class="history-section">
-    <h3>走行履歴</h3>
+    <h3>走行履歴 <span class="history-count" id="historyCount"></span></h3>
     <div class="history-list" id="historyList"></div>
   </section>
+
+  <!-- 初回設定モーダル（ウェルカム） -->
+  <div class="modal" id="welcomeModal">
+    <div class="modal-content welcome-modal">
+      <h2>🏃 Marathon Color Countdown</h2>
+      <p class="welcome-text">フルマラソン準備を彩る進捗管理アプリへようこそ！<br>まずは大会情報を設定しましょう。</p>
+      <form id="welcomeForm">
+        <div class="form-group">
+          <label for="welcomeRaceName">大会名 *</label>
+          <input type="text" id="welcomeRaceName" placeholder="例: 東京マラソン2025" required>
+        </div>
+        <div class="form-group">
+          <label for="welcomeRaceDate">大会日 *</label>
+          <input type="date" id="welcomeRaceDate" required>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-save btn-welcome">始める</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- 設定モーダル -->
   <div class="modal" id="settingsModal">
@@ -78,6 +99,32 @@
         </div>
         <div class="form-actions">
           <button type="button" class="btn-cancel" id="cancelSettings">キャンセル</button>
+          <button type="submit" class="btn-save">保存</button>
+        </div>
+      </form>
+      <div class="danger-zone">
+        <h4>データ管理</h4>
+        <button type="button" class="btn-danger" id="resetDataBtn">すべてのデータを初期化</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 履歴編集モーダル -->
+  <div class="modal" id="editHistoryModal">
+    <div class="modal-content">
+      <h2>履歴を編集</h2>
+      <form id="editHistoryForm">
+        <div class="form-group">
+          <label for="editDate">日付</label>
+          <input type="date" id="editDate" readonly>
+        </div>
+        <div class="form-group">
+          <label for="editDistance">走行距離 (km)</label>
+          <input type="number" id="editDistance" step="0.1" min="0" max="100">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-danger" id="deleteHistoryBtn">削除</button>
+          <button type="button" class="btn-cancel" id="cancelEditHistory">キャンセル</button>
           <button type="submit" class="btn-save">保存</button>
         </div>
       </form>

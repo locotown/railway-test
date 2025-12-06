@@ -457,3 +457,88 @@ button:active {
   background: rgba(255,255,255,0.3);
   border-radius: 3px;
 }
+
+/* 履歴アイテム - クリック可能 */
+.history-item {
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.history-item:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateX(4px);
+}
+
+.history-item .edit-hint {
+  font-size: 0.8em;
+  opacity: 0.6;
+}
+
+.history-count {
+  font-size: 0.8em;
+  opacity: 0.7;
+  font-weight: normal;
+}
+
+/* ウェルカムモーダル */
+.welcome-modal {
+  text-align: center;
+}
+
+.welcome-modal h2 {
+  font-size: 1.5em;
+  margin-bottom: 12px;
+}
+
+.welcome-text {
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.btn-welcome {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1em;
+}
+
+/* 危険ゾーン（データ初期化） */
+.danger-zone {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.danger-zone h4 {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: #fff;
+  width: 100%;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
+
+/* 編集モーダルの削除ボタン */
+#editHistoryModal .form-actions {
+  flex-wrap: wrap;
+}
+
+#editHistoryModal .btn-danger {
+  flex: 0 0 100%;
+  margin-bottom: 10px;
+}
+
+/* 確認ダイアログ風 */
+.confirm-text {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #e74c3c;
+  font-weight: 500;
+}

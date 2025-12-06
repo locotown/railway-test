@@ -12,6 +12,7 @@ class MarathonCountdown {
     ];
 
     this.TOTAL_DISTANCE = 42.195;
+    this.editingRecordDate = null;
 
     this.init();
   }
@@ -19,12 +20,24 @@ class MarathonCountdown {
   init() {
     this.loadData();
     this.setupEventListeners();
-    this.updateDisplay();
+
+    // 初回アクセスチェック
+    if (this.isFirstVisit()) {
+      this.showWelcomeModal();
+    } else {
+      this.updateDisplay();
+    }
+
     this.updateCurrentDate();
     this.fetchWeather();
 
     // 1分ごとに日付を更新
     setInterval(() => this.updateCurrentDate(), 60000);
+  }
+
+  // 初回訪問かチェック
+  isFirstVisit() {
+    return !localStorage.getItem('marathonData');
   }
 
   // データ管理
@@ -33,36 +46,52 @@ class MarathonCountdown {
     if (saved) {
       this.data = JSON.parse(saved);
     } else {
-      // デフォルトデータ（3ヶ月後の日曜日を大会日に設定）
-      const defaultRaceDate = this.getDefaultRaceDate();
+      // デフォルトデータ（初期化用）
       this.data = {
-        raceDate: defaultRaceDate,
-        raceName: 'マラソン大会',
+        raceDate: '',
+        raceName: '',
         runHistory: [],
         totalRun: 0
       };
-      this.saveData();
     }
-  }
-
-  getDefaultRaceDate() {
-    const date = new Date();
-    date.setMonth(date.getMonth() + 3);
-    // 次の日曜日を探す
-    while (date.getDay() !== 0) {
-      date.setDate(date.getDate() + 1);
-    }
-    return date.toISOString().split('T')[0];
   }
 
   saveData() {
     localStorage.setItem('marathonData', JSON.stringify(this.data));
   }
 
-  // 日付計算
+  // データ初期化
+  resetAllData() {
+    if (confirm('すべてのデータを削除しますか？\n\n・大会設定\n・走行履歴\n\nこの操作は取り消せません。')) {
+      localStorage.removeItem('marathonData');
+      this.loadData();
+      this.closeSettingsModal();
+      this.showWelcomeModal();
+    }
+  }
+
+  // 日本時間で今日の日付を取得
+  getTodayJST() {
+    const now = new Date();
+    // UTC時間に9時間を加算して日本時間に
+    const jstOffset = 9 * 60 * 60 * 1000;
+    const jstTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + jstOffset);
+    return jstTime.toISOString().split('T')[0];
+  }
+
+  // 日本時間で現在時刻を取得
+  getNowJST() {
+    const now = new Date();
+    const jstOffset = 9 * 60 * 60 * 1000;
+    return new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + jstOffset);
+  }
+
+  // 日付計算（日本時間ベース）
   getDaysUntilRace() {
-    const raceDate = new Date(this.data.raceDate + 'T00:00:00');
-    const today = new Date();
+    if (!this.data.raceDate) return 0;
+
+    const raceDate = new Date(this.data.raceDate + 'T00:00:00+09:00');
+    const today = this.getNowJST();
     today.setHours(0, 0, 0, 0);
     const diffTime = raceDate - today;
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -81,9 +110,9 @@ class MarathonCountdown {
 
   // 距離記録追加
   addRunRecord(distance) {
-    const today = new Date().toISOString().split('T')[0];
+    const today = this.getTodayJST();
 
-    // 同じ日の記録があれば更新、なければ新規追加
+    // 同じ日の記録があれば加算
     const existingIndex = this.data.runHistory.findIndex(
       record => record.date === today
     );
@@ -98,14 +127,37 @@ class MarathonCountdown {
       });
     }
 
-    // 総距離再計算
-    this.data.totalRun = this.data.runHistory.reduce(
-      (sum, record) => sum + record.distance, 0
-    );
-
+    this.recalculateTotalDistance();
     this.saveData();
     this.updateDisplay();
     this.showSuccessAnimation();
+  }
+
+  // 履歴を編集
+  updateRunRecord(date, newDistance) {
+    const index = this.data.runHistory.findIndex(record => record.date === date);
+    if (index >= 0) {
+      this.data.runHistory[index].distance = parseFloat(newDistance);
+      this.data.runHistory[index].updatedAt = new Date().toISOString();
+    }
+    this.recalculateTotalDistance();
+    this.saveData();
+    this.updateDisplay();
+  }
+
+  // 履歴を削除
+  deleteRunRecord(date) {
+    this.data.runHistory = this.data.runHistory.filter(record => record.date !== date);
+    this.recalculateTotalDistance();
+    this.saveData();
+    this.updateDisplay();
+  }
+
+  // 総距離を再計算
+  recalculateTotalDistance() {
+    this.data.totalRun = this.data.runHistory.reduce(
+      (sum, record) => sum + record.distance, 0
+    );
   }
 
   // 表示更新
@@ -122,7 +174,7 @@ class MarathonCountdown {
       this.data.totalRun.toFixed(1);
     document.getElementById('remainingDistance').textContent =
       remainingDistance.toFixed(1);
-    document.getElementById('raceName').textContent = this.data.raceName;
+    document.getElementById('raceName').textContent = this.data.raceName || 'マラソン大会';
     document.getElementById('currentColorName').textContent = progress.color.name;
 
     // 背景色更新
@@ -137,12 +189,13 @@ class MarathonCountdown {
   }
 
   updateCurrentDate() {
-    const now = new Date();
+    const now = this.getNowJST();
     const options = {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      weekday: 'long'
+      weekday: 'long',
+      timeZone: 'Asia/Tokyo'
     };
     document.getElementById('currentDate').textContent =
       now.toLocaleDateString('ja-JP', options);
@@ -150,11 +203,15 @@ class MarathonCountdown {
 
   updateHistoryDisplay() {
     const historyList = document.getElementById('historyList');
+    const historyCount = document.getElementById('historyCount');
 
     if (this.data.runHistory.length === 0) {
-      historyList.innerHTML = '<div class="history-empty">まだ記録がありません</div>';
+      historyList.innerHTML = '<div class="history-empty">まだ記録がありません<br>走行距離を入力して記録を始めましょう</div>';
+      historyCount.textContent = '';
       return;
     }
+
+    historyCount.textContent = `(${this.data.runHistory.length}件)`;
 
     // 日付の新しい順にソート
     const sortedHistory = [...this.data.runHistory].sort(
@@ -162,19 +219,28 @@ class MarathonCountdown {
     );
 
     historyList.innerHTML = sortedHistory.slice(0, 10).map(record => {
-      const date = new Date(record.date);
+      const date = new Date(record.date + 'T00:00:00+09:00');
       const dateStr = date.toLocaleDateString('ja-JP', {
         month: 'short',
         day: 'numeric',
-        weekday: 'short'
+        weekday: 'short',
+        timeZone: 'Asia/Tokyo'
       });
       return `
-        <div class="history-item">
+        <div class="history-item" data-date="${record.date}">
           <span class="date">${dateStr}</span>
           <span class="distance">${record.distance.toFixed(1)} km</span>
         </div>
       `;
     }).join('');
+
+    // 履歴アイテムにクリックイベントを追加
+    historyList.querySelectorAll('.history-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const date = item.dataset.date;
+        this.openEditHistoryModal(date);
+      });
+    });
   }
 
   // 天気取得
@@ -241,6 +307,12 @@ class MarathonCountdown {
       }
     });
 
+    // ウェルカムモーダル
+    document.getElementById('welcomeForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.saveWelcomeSettings();
+    });
+
     // 設定モーダル
     document.getElementById('openSettings').addEventListener('click', () => {
       this.openSettingsModal();
@@ -260,11 +332,73 @@ class MarathonCountdown {
       e.preventDefault();
       this.saveSettings();
     });
+
+    // データ初期化ボタン
+    document.getElementById('resetDataBtn').addEventListener('click', () => {
+      this.resetAllData();
+    });
+
+    // 履歴編集モーダル
+    document.getElementById('cancelEditHistory').addEventListener('click', () => {
+      this.closeEditHistoryModal();
+    });
+
+    document.getElementById('editHistoryModal').addEventListener('click', (e) => {
+      if (e.target.id === 'editHistoryModal') {
+        this.closeEditHistoryModal();
+      }
+    });
+
+    document.getElementById('editHistoryForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.saveEditHistory();
+    });
+
+    document.getElementById('deleteHistoryBtn').addEventListener('click', () => {
+      this.deleteCurrentHistory();
+    });
   }
 
+  // ウェルカムモーダル
+  showWelcomeModal() {
+    // デフォルトで3ヶ月後の日曜日を設定
+    const defaultDate = this.getDefaultRaceDate();
+    document.getElementById('welcomeRaceDate').value = defaultDate;
+    document.getElementById('welcomeModal').classList.add('active');
+  }
+
+  getDefaultRaceDate() {
+    const date = this.getNowJST();
+    date.setMonth(date.getMonth() + 3);
+    while (date.getDay() !== 0) {
+      date.setDate(date.getDate() + 1);
+    }
+    return date.toISOString().split('T')[0];
+  }
+
+  saveWelcomeSettings() {
+    const raceName = document.getElementById('welcomeRaceName').value.trim();
+    const raceDate = document.getElementById('welcomeRaceDate').value;
+
+    if (!raceName || !raceDate) {
+      alert('大会名と大会日を入力してください');
+      return;
+    }
+
+    this.data.raceName = raceName;
+    this.data.raceDate = raceDate;
+    this.data.runHistory = [];
+    this.data.totalRun = 0;
+
+    this.saveData();
+    document.getElementById('welcomeModal').classList.remove('active');
+    this.updateDisplay();
+  }
+
+  // 設定モーダル
   openSettingsModal() {
-    document.getElementById('raceNameInput').value = this.data.raceName;
-    document.getElementById('raceDateInput').value = this.data.raceDate;
+    document.getElementById('raceNameInput').value = this.data.raceName || '';
+    document.getElementById('raceDateInput').value = this.data.raceDate || '';
     document.getElementById('settingsModal').classList.add('active');
   }
 
@@ -286,6 +420,44 @@ class MarathonCountdown {
     this.saveData();
     this.updateDisplay();
     this.closeSettingsModal();
+  }
+
+  // 履歴編集モーダル
+  openEditHistoryModal(date) {
+    const record = this.data.runHistory.find(r => r.date === date);
+    if (!record) return;
+
+    this.editingRecordDate = date;
+    document.getElementById('editDate').value = date;
+    document.getElementById('editDistance').value = record.distance;
+    document.getElementById('editHistoryModal').classList.add('active');
+  }
+
+  closeEditHistoryModal() {
+    this.editingRecordDate = null;
+    document.getElementById('editHistoryModal').classList.remove('active');
+  }
+
+  saveEditHistory() {
+    const newDistance = parseFloat(document.getElementById('editDistance').value);
+
+    if (newDistance <= 0 || newDistance > 100) {
+      alert('0.1〜100kmの間で入力してください');
+      return;
+    }
+
+    this.updateRunRecord(this.editingRecordDate, newDistance);
+    this.closeEditHistoryModal();
+  }
+
+  deleteCurrentHistory() {
+    const date = this.editingRecordDate;
+    const record = this.data.runHistory.find(r => r.date === date);
+
+    if (record && confirm(`${date} の記録 (${record.distance.toFixed(1)}km) を削除しますか？`)) {
+      this.deleteRunRecord(date);
+      this.closeEditHistoryModal();
+    }
   }
 
   // 成功アニメーション
